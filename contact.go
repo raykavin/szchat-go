@@ -2,6 +2,7 @@ package szchat
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/url"
 )
@@ -40,6 +41,43 @@ type Contact struct {
 	StatusWhatsapp  int               `json:"statusWhatsapp,omitempty"`
 	CreatedAt       string            `json:"created_at,omitempty"`
 	UpdatedAt       string            `json:"updated_at,omitempty"`
+
+	Extra map[string]any `json:"-"`
+}
+
+// UnmarshalJSON decodes the known Contact fields and collects every other
+// top-level key into Extra, so tenant-specific custom fields survive a
+// round trip through this struct instead of being silently dropped.
+func (c *Contact) UnmarshalJSON(data []byte) error {
+	type alias Contact
+
+	var a alias
+	extra, err := unmarshalWithExtra(data, &a)
+	if err != nil {
+		return err
+	}
+	*c = Contact(a)
+
+	if len(extra) == 0 {
+		return nil
+	}
+
+	c.Extra = make(map[string]any, len(extra))
+	for k, raw := range extra {
+		var v any
+		if err := json.Unmarshal(raw, &v); err != nil {
+			return err
+		}
+		c.Extra[k] = v
+	}
+	return nil
+}
+
+// MarshalJSON merges Extra into the encoded object, mirroring
+// ContactRequest.MarshalJSON.
+func (c Contact) MarshalJSON() ([]byte, error) {
+	type alias Contact
+	return marshalWithExtra(alias(c), c.Extra)
 }
 
 // ContactRequest is the payload for creating/updating a Contact. Extra
