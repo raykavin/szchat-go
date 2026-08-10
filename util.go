@@ -38,6 +38,40 @@ func (s *StringSlice) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// normalizeNumericStringFields rewrites, for each name in keys, a top-level
+// JSON number in data into the equivalent JSON string, leaving every other
+// key's raw bytes untouched. It tolerates endpoints that type a field as a
+// string in most records but occasionally send it back as a bare number.
+func normalizeNumericStringFields(data []byte, keys ...string) ([]byte, error) {
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
+
+	changed := false
+	for _, key := range keys {
+		v, ok := raw[key]
+		if !ok || len(v) == 0 {
+			continue
+		}
+		if v[0] == '"' || string(v) == "null" {
+			continue
+		}
+
+		quoted := make([]byte, 0, len(v)+2)
+		quoted = append(quoted, '"')
+		quoted = append(quoted, v...)
+		quoted = append(quoted, '"')
+		raw[key] = quoted
+		changed = true
+	}
+
+	if !changed {
+		return data, nil
+	}
+	return json.Marshal(raw)
+}
+
 // marshalWithExtra marshals v and shallow-merges extra on top of the result,
 // letting request structs expose a fixed set of well-known fields while
 // still accepting arbitrary/tenant-specific keys (e.g. custom contact
