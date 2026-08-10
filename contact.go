@@ -48,7 +48,17 @@ type Contact struct {
 // UnmarshalJSON decodes the known Contact fields and collects every other
 // top-level key into Extra, so tenant-specific custom fields survive a
 // round trip through this struct instead of being silently dropped.
+//
+// ddi and ddd are normalized to JSON strings first: SZChat's own schema
+// types them as strings, but some contact records come back with them
+// encoded as JSON numbers instead, which would otherwise fail the decode
+// below (e.g. while paging through GET /contacts).
 func (c *Contact) UnmarshalJSON(data []byte) error {
+	data, err := normalizeNumericStringFields(data, "ddi", "ddd")
+	if err != nil {
+		return err
+	}
+
 	type alias Contact
 
 	var a alias
