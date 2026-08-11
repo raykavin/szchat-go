@@ -50,6 +50,7 @@ type Client struct {
 	ChannelAPI      *ChannelAPI
 	AgentAPI        *AgentAPI
 	AgentTalkAPI    *AgentTalkAPI
+	AgentPauseAPI   *AgentPauseAPI
 	TeamAPI         *TeamAPI
 	AdminAPI        *AdminAPI
 	MessageAPI      *MessageAPI
@@ -57,6 +58,14 @@ type Client struct {
 	TabulationAPI   *TabulationAPI
 	PauseAPI        *PauseAPI
 	AttendanceAPI   *AttendanceAPI
+	TagAPI          *TagAPI
+	HSMAPI          *HSMAPI
+	GalleryAPI      *GalleryAPI
+	PlaceholderAPI  *PlaceholderAPI
+	CopilotAPI      *CopilotAPI
+	WebRTCAPI       *WebRTCAPI
+	TranslationAPI  *TranslationAPI
+	ClickToCallAPI  *ClickToCallAPI
 }
 
 // Option is a function that configures a Client.
@@ -124,6 +133,7 @@ func NewClient(baseURL, email, password string, opts ...Option) (*Client, error)
 	c.ChannelAPI = &ChannelAPI{client: c}
 	c.AgentAPI = &AgentAPI{client: c}
 	c.AgentTalkAPI = &AgentTalkAPI{client: c}
+	c.AgentPauseAPI = &AgentPauseAPI{client: c}
 	c.TeamAPI = &TeamAPI{client: c}
 	c.AdminAPI = &AdminAPI{client: c}
 	c.MessageAPI = &MessageAPI{client: c}
@@ -131,6 +141,14 @@ func NewClient(baseURL, email, password string, opts ...Option) (*Client, error)
 	c.TabulationAPI = &TabulationAPI{client: c}
 	c.PauseAPI = &PauseAPI{client: c}
 	c.AttendanceAPI = &AttendanceAPI{client: c}
+	c.TagAPI = &TagAPI{client: c}
+	c.HSMAPI = &HSMAPI{client: c}
+	c.GalleryAPI = &GalleryAPI{client: c}
+	c.PlaceholderAPI = &PlaceholderAPI{client: c}
+	c.CopilotAPI = &CopilotAPI{client: c}
+	c.WebRTCAPI = &WebRTCAPI{client: c}
+	c.TranslationAPI = &TranslationAPI{client: c}
+	c.ClickToCallAPI = &ClickToCallAPI{client: c}
 
 	return c, nil
 }
