@@ -56,6 +56,7 @@ type Client struct {
 	ApplicationAPI  *ApplicationAPI
 	TabulationAPI   *TabulationAPI
 	PauseAPI        *PauseAPI
+	AttendanceAPI   *AttendanceAPI
 }
 
 // Option is a function that configures a Client.
@@ -129,6 +130,7 @@ func NewClient(baseURL, email, password string, opts ...Option) (*Client, error)
 	c.ApplicationAPI = &ApplicationAPI{client: c}
 	c.TabulationAPI = &TabulationAPI{client: c}
 	c.PauseAPI = &PauseAPI{client: c}
+	c.AttendanceAPI = &AttendanceAPI{client: c}
 
 	return c, nil
 }
