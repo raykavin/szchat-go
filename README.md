@@ -16,7 +16,6 @@ de Horário, Grupos de Usuário, Mensagens (+ canal genérico + API WhatsApp),
 Configuração da Aplicação, Tabulações, Pausas, Números Bloqueados,
 Multicanal, Mensagens Predefinidas e Relatórios.
 
-
 > **Aviso:** este é um projeto de código aberto independente e não possui
 > qualquer vínculo, patrocínio ou endosso por parte da [Fortics](https://fortics.com.br/),
 > fornecedora oficial do SZChat. "SZChat" é uma marca de sua respectiva
@@ -426,11 +425,11 @@ type PaginatedResponse[T any] struct {
 Os parâmetros de paginação seguem uma convenção de nomes consistente entre os
 filtros de listagem, através do `ListOptions` embutido:
 
-| Campo      | Parâmetro   | Descrição                          |
-|------------|-------------|-------------------------------------|
-| `Page`     | `page`      | Número da página                   |
-| `Limit`    | `limit`     | Quantidade de itens por página      |
-| `Paginate` | `paginate`  | Se deve paginar ("0" ou "1")        |
+| Campo      | Parâmetro  | Descrição                      |
+| ---------- | ---------- | ------------------------------ |
+| `Page`     | `page`     | Número da página               |
+| `Limit`    | `limit`    | Quantidade de itens por página |
+| `Paginate` | `paginate` | Se deve paginar ("0" ou "1")   |
 
 Padrão completo de iteração:
 
@@ -502,6 +501,7 @@ ambiente é necessário.
 Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), última verificação: 2026-08-11.
 
 ### Autenticação
+
 - [x] `GET /api/version` — Obter versão da API (sem autenticação)
 - [x] `POST /auth/login` — Login
 - [x] `POST /auth/login-v2` — Login (variante com motivos de falha 403 detalhados)
@@ -510,6 +510,7 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `GET /auth/refresh` — Renovar token
 
 ### Contatos
+
 - [x] `GET /contacts` — Listar contatos (paginado, com filtros)
 - [x] `GET /contacts/search` — Buscar contatos
 - [x] `GET /contacts/{id}` — Obter um contato
@@ -526,12 +527,14 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `POST /contacts/unmerge` — Desvincular um contato
 
 ### Campos de Contatos
+
 - [x] `GET /contacts/fields` — Listar campos customizados
 - [x] `POST /contacts/fields` — Criar campo customizado
 - [x] `PUT /contacts/fields/{id}` — Atualizar campo customizado
 - [x] `DELETE /contacts/fields/{id}` — Excluir campo customizado
 
 ### Grupos de Contatos
+
 - [x] `GET /contacts/groups` — Listar grupos de contatos
 - [x] `POST /contacts/groups` — Criar grupo de contatos
 - [x] `PUT /contacts/groups/{id}` — Atualizar grupo de contatos
@@ -539,6 +542,7 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `GET /contacts/groups/contact/{contact_id}` — Listar grupos por contato
 
 ### Filtro de Palavras
+
 - [x] `GET /wordFilter/agents` — Listar palavras filtradas para agentes
 - [x] `POST /wordFilter/agents` — Adicionar palavra filtrada (agente)
 - [x] `PUT /wordFilter/agents/{id}` — Atualizar palavra filtrada (agente)
@@ -549,18 +553,21 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `DELETE /wordFilter/contacts/{id}` — Excluir palavra filtrada (contato)
 
 ### Grupo de Horários
+
 - [x] `GET /timeGroup` — Listar grupos de horário
 - [x] `POST /timeGroup` — Criar grupo de horário
 - [x] `PUT /timeGroup/{id}` — Atualizar grupo de horário
 - [x] `DELETE /timeGroup/{id}` — Excluir grupo de horário
 
 ### Grupo de Usuários
+
 - [x] `GET /userGroup` — Listar grupos de usuário
 - [x] `POST /userGroup` — Criar grupo de usuário
 - [x] `PUT /userGroup/{id}` — Atualizar grupo de usuário
 - [x] `DELETE /userGroup/{id}` — Excluir grupo de usuário
 
 ### Mensagens Predefinidas
+
 - [x] `GET /predefined_messages` — Listar mensagens predefinidas
 - [x] `GET /predefined_messages/{id}` — Obter uma mensagem predefinida
 - [x] `POST /predefined_messages` — Criar mensagem predefinida
@@ -568,23 +575,27 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `DELETE /predefined_messages/{id}` — Excluir mensagem predefinida
 
 ### Multicanal
+
 - [x] `GET /multichannel` — Listar links multicanal
 - [x] `POST /multichannel` — Criar link multicanal
 - [x] `PUT /multichannel/{id}` — Atualizar link multicanal
 - [x] `DELETE /multichannel/{id}` — Excluir link multicanal
 
 ### Números Bloqueados
+
 - [x] `GET /blockedNumbers` — Listar números bloqueados
 - [x] `POST /blockedNumbers` — Bloquear um número
 - [x] `PUT /blockedNumbers/{id}` — Atualizar um número bloqueado
 - [x] `DELETE /blockedNumbers/{id}` — Desbloquear um número
 
 ### Canais
+
 - [x] `GET /channels` — Listar canais
 - [x] `GET /channels/platforms` — Listar plataformas disponíveis
 - [x] `GET /channels/platforms/active` — Listar plataformas ativas
 
 ### Agentes
+
 - [x] `GET /agents` — Listar agentes (paginado, com filtros)
 - [x] `POST /agents` — Criar um agente
 - [x] `GET /agents/{id}` — Obter um agente
@@ -605,46 +616,57 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `PUT /user/agents/update` — Editar meu perfil (nome, ramal, senha, idioma)
 
 ### Pausas do Agente
+
 - [x] `GET /user/agents/pauses` — Listar motivos de pausa disponíveis
 - [x] `POST /user/agents/pauses/start` — Iniciar uma pausa
 - [x] `POST /user/agents/pauses/stop` — Encerrar a pausa atual
 - [x] `GET /user/agents/pauses/progress` — Progresso da pausa atual
 
 ### Mensagens entre Agentes
+
 - [x] `POST /user/agents/messages/send` — Enviar mensagem interna
 - [x] `GET /user/agents/messages` — Listar minhas conversas
 - [x] `GET /user/agents/messages/read/{agent_id}` — Obter histórico de conversa com um par
 
 ### Tags
+
 - [x] `GET /user/agents/list/tagsCategory` — Listar categorias de tag
 - [x] `POST /user/agents/session/setTagCategory` — Atribuir tag a uma sessão
 - [x] `POST /user/agents/session/deleteTagCategory` — Remover tag de uma sessão
 
 ### Modelos de Mensagem (HSM)
+
 - [x] `POST /hsm/listAll` — Listar modelos HSM disponíveis
 
 ### Galeria
+
 - [x] `GET /agent/historic/medias` — Listar mídias trocadas com um contato
 
 ### Placeholders
+
 - [x] `POST /user/agent/placeholders` — Resolver placeholders para um contato/agente/sessão
 
 ### Copilot
+
 - [x] `GET /user/agent/copilot/list` — Listar assistentes de copilot
 - [x] `POST /user/agent/copilot/execute` — Executar um assistente de copilot
 
 ### WebRTC
+
 - [x] `GET /user/agent/webrtc/{agent_id}` — Obter configuração de WebRTC de um agente
 
 ### Tradução Simultânea
+
 - [x] `POST /user/agent/stt/translate` — Traduzir uma mensagem
 - [x] `POST /user/agent/stt/translate/detect` — Detectar idioma de uma mensagem
 - [x] `POST /user/agent/stt/translate/activeAutoTranslate` — Alternar tradução automática de uma sessão
 
 ### Click to Call
+
 - [x] `POST /user/agent/call` — Ligar para um contato pelo ramal do agente
 
 ### Atendimentos (ciclo de vida)
+
 - [x] `POST /session/init` — Iniciar um atendimento
 - [x] `POST /attendances/accept` — Aceitar um atendimento em espera
 - [x] `POST /attendances/finish` — Finalizar um atendimento
@@ -659,11 +681,13 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `POST /attendances/historic/protocol` — Sessão completa por protocolo
 
 ### Conferência entre Agentes
+
 - [x] `POST /attendances/conference/invite` — Convidar agente para conferência
 - [x] `POST /attendances/conference/accept` — Aceitar/recusar convite de conferência
 - [x] `POST /attendances/conference/finish` — Finalizar participação em conferência
 
 ### Equipes
+
 - [x] `GET /campaigns` — Listar equipes (paginado)
 - [x] `GET /campaigns/resume/{paginate}` — Listar resumo de equipes
 - [x] `POST /campaigns/filterByIds` — Filtrar equipes por ids
@@ -673,6 +697,7 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `DELETE /campaigns/{id}` — Excluir uma equipe
 
 ### Administradores
+
 - [x] `GET /admins` — Listar administradores (paginado)
 - [x] `GET /admins/groups` — Listar grupos de permissão de administradores
 - [x] `POST /admins` — Criar um administrador
@@ -681,6 +706,7 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `DELETE /admins/{id}` — Excluir um administrador
 
 ### Mensagens
+
 - [x] `POST /message/send` — Enviar uma mensagem
 - [x] `POST /message/send_plus` — Enviar mensagem e criar/atualizar contato
 - [x] `POST /message/read` — Ler mensagens de uma sessão
@@ -691,13 +717,16 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `DELETE /message/{id}/annotation` — Remover anotação de uma mensagem
 
 ### Canal Genérico
+
 - [x] `POST /generic/messages/send` — Encaminhar mensagem entrante (texto/mídia/localização/contato)
 - [x] `POST /generic/messages/send` — Encaminhar notificação de status do dispositivo
 
 ### API WhatsApp
+
 - [x] `POST /whatsapp/attendances` — Encaminhar conversa/transferir para atendimento humano
 
 ### Configuração da Aplicação
+
 - [x] `GET /application` — Obter configuração do tenant
 - [x] `PUT /application` — Atualizar configuração do tenant
 - [x] `GET /application/attendance` — Obter faixa de notas de atendimento
@@ -706,42 +735,24 @@ Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), ú
 - [x] `PUT /application/messages` — Atualizar configuração de mensagens automáticas
 
 ### Tabulações
+
 - [x] `GET /tabulations` — Listar tabulações (paginado)
 - [x] `POST /tabulations` — Criar uma tabulação
 - [x] `PUT /tabulations/{id}` — Atualizar uma tabulação
 - [x] `DELETE /tabulations/{id}` — Excluir uma tabulação
 
 ### Pausas (catálogo do tenant)
+
 - [x] `GET /pauses` — Listar pausas (paginado)
 - [x] `POST /pauses` — Criar uma pausa
 - [x] `PUT /pauses/{id}` — Atualizar uma pausa
 - [x] `DELETE /pauses/{id}` — Excluir uma pausa
 
 ### Relatórios
+
 - [x] `GET /reports/attendances` — Relatório de atendimentos (analítico/sintético)
 
 **Total: 153 endpoints cobertos**
-
-### Fora do escopo do SDK
-
-Os itens abaixo aparecem na documentação mas não são endpoints que este
-cliente deveria chamar, e por isso não têm um método correspondente:
-
-- **Integrações de terceiros** (Altarede, Desk Manager, Duobox, IXC, TOTVS,
-  etc.) e os módulos NLP, REST, OCR, Data Driven, Gupshup, Modelos de
-  Mensagem — são guias de configuração dentro do painel administrativo do
-  Chat Center, sem nenhum endpoint HTTP com método/path documentado.
-- **RD Station** (`GET /rdstation/send`) — URL gerada por tenant para ser
-  chamada *pelo próprio RD Station* dentro do fluxo de automação dele, não
-  pelo cliente da API.
-- **API Receptiva** e os **webhooks de saída do Canal Genérico** — Chat
-  Center realiza o POST para um host configurado pelo tenant; não há
-  endpoint para o cliente chamar. Os tipos `Webhook*` e
-  `GenericChannelOutboundMessage` em [webhook.go](webhook.go) documentam o
-  formato desses payloads para quem precisa decodificá-los no próprio
-  servidor HTTP.
-- **Hooks de entrada/saída do Canal Genérico** (scripts ECMAScript
-  executados pelo Chat Center) — não são chamadas HTTP.
 
 ---
 
