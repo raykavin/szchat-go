@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -176,8 +177,9 @@ func isRetryableStatus(code int) bool {
 
 // rawResponse is a fully-buffered HTTP response.
 type rawResponse struct {
-	StatusCode int
-	Body       []byte
+	StatusCode  int
+	Body        []byte
+	ContentType string
 }
 
 // do executes req, transparently retrying on transient errors and on a
@@ -227,7 +229,11 @@ func (c *Client) do(ctx context.Context, req *http.Request) (*rawResponse, error
 			}
 		}
 
-		result = &rawResponse{StatusCode: resp.StatusCode, Body: respBody}
+		result = &rawResponse{
+			StatusCode:  resp.StatusCode,
+			Body:        respBody,
+			ContentType: resp.Header.Get(httpclient.HeaderContentType),
+		}
 		if isRetryableStatus(resp.StatusCode) {
 			return &statusError{code: resp.StatusCode}
 		}
@@ -265,6 +271,21 @@ func (c *Client) request(
 	query url.Values,
 	in, out any,
 ) error {
+	return c.requestWithHeaders(ctx, method, path, query, nil, in, out)
+}
+
+// requestWithHeaders is like request but sets any extra headers on the
+// request after the default Authorization/Accept/Content-Type headers,
+// letting callers add or override headers (e.g. a channel-specific API key
+// used instead of the agent bearer token) without duplicating the
+// encode/decode/error-handling logic in request.
+func (c *Client) requestWithHeaders(
+	ctx context.Context,
+	method, path string,
+	query url.Values,
+	headers map[string]string,
+	in, out any,
+) error {
 	reqURL := c.baseURL + path
 	if len(query) > 0 {
 		reqURL += "?" + query.Encode()
@@ -288,6 +309,9 @@ func (c *Client) request(
 			httpclient.HeaderContentType,
 			httpclient.MIMEApplicationJSON,
 		)
+	}
+	for k, v := range headers {
+		req.Header.Set(k, v)
 	}
 
 	resp, err := c.do(ctx, req)
@@ -322,4 +346,83 @@ func (c *Client) put(ctx context.Context, path string, in, out any) error {
 
 func (c *Client) delete(ctx context.Context, path string, out any) error {
 	return c.request(ctx, http.MethodDelete, path, nil, nil, out)
+}
+
+// postWithKey issues a POST authenticated with a single static header
+// (headerName: headerValue) instead of the client's bearer token, used by
+// endpoints authenticated per-channel rather than per-agent (e.g. the
+// generic channel and WhatsApp receptive APIs). The request still carries
+// whatever bearer token the client currently holds, if any, since these
+// endpoints only look at their own header and ignore Authorization.
+func (c *Client) postWithKey(ctx context.Context, path, headerName, headerValue string, in, out any) error {
+	return c.requestWithHeaders(ctx, http.MethodPost, path, nil, map[string]string{headerName: headerValue}, in, out)
+}
+
+// getRaw issues a GET and returns the raw response body and Content-Type
+// header, for endpoints that do not return JSON (e.g. downloading stored
+// media). Non-2xx responses are returned as *APIError.
+func (c *Client) getRaw(ctx context.Context, path string) ([]byte, string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+path, nil)
+	if err != nil {
+		return nil, "", fmt.Errorf("szchat: building request: %w", err)
+	}
+
+	resp, err := c.do(ctx, req)
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode >= http.StatusBadRequest {
+		return nil, "", parseAPIError(resp.StatusCode, resp.Body)
+	}
+	return resp.Body, resp.ContentType, nil
+}
+
+// postMultipart issues a multipart/form-data POST, used by endpoints that
+// accept a file upload (e.g. the agent profile photo). fields holds
+// additional plain form fields sent alongside the file.
+func (c *Client) postMultipart(
+	ctx context.Context,
+	path, fileField, filename string,
+	file io.Reader,
+	fields map[string]string,
+	out any,
+) error {
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	part, err := writer.CreateFormFile(fileField, filename)
+	if err != nil {
+		return fmt.Errorf("szchat: building multipart request: %w", err)
+	}
+	if _, err := io.Copy(part, file); err != nil {
+		return fmt.Errorf("szchat: reading file content: %w", err)
+	}
+	for k, v := range fields {
+		if err := writer.WriteField(k, v); err != nil {
+			return fmt.Errorf("szchat: building multipart request: %w", err)
+		}
+	}
+	if err := writer.Close(); err != nil {
+		return fmt.Errorf("szchat: building multipart request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+path, &buf)
+	if err != nil {
+		return fmt.Errorf("szchat: building request: %w", err)
+	}
+	req.Header.Set(httpclient.HeaderContentType, writer.FormDataContentType())
+
+	resp, err := c.do(ctx, req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode >= http.StatusBadRequest {
+		return parseAPIError(resp.StatusCode, resp.Body)
+	}
+	if out != nil && len(resp.Body) > 0 {
+		if err := json.Unmarshal(resp.Body, out); err != nil {
+			return fmt.Errorf("szchat: decoding response body: %w", err)
+		}
+	}
+	return nil
 }
