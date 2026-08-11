@@ -45,17 +45,38 @@ type Client struct {
 	retryWaitMin time.Duration
 	retryWaitMax time.Duration
 
-	ContactAPI      *ContactAPI
-	ContactGroupAPI *ContactGroupAPI
-	ChannelAPI      *ChannelAPI
-	AgentAPI        *AgentAPI
-	AgentTalkAPI    *AgentTalkAPI
-	TeamAPI         *TeamAPI
-	AdminAPI        *AdminAPI
-	MessageAPI      *MessageAPI
-	ApplicationAPI  *ApplicationAPI
-	TabulationAPI   *TabulationAPI
-	PauseAPI        *PauseAPI
+	ContactAPI           *ContactAPI
+	ContactGroupAPI      *ContactGroupAPI
+	ContactFieldAPI      *ContactFieldAPI
+	ChannelAPI           *ChannelAPI
+	AgentAPI             *AgentAPI
+	AgentTalkAPI         *AgentTalkAPI
+	AgentPauseAPI        *AgentPauseAPI
+	TeamAPI              *TeamAPI
+	AdminAPI             *AdminAPI
+	MessageAPI           *MessageAPI
+	ApplicationAPI       *ApplicationAPI
+	TabulationAPI        *TabulationAPI
+	PauseAPI             *PauseAPI
+	AttendanceAPI        *AttendanceAPI
+	TagAPI               *TagAPI
+	HSMAPI               *HSMAPI
+	GalleryAPI           *GalleryAPI
+	PlaceholderAPI       *PlaceholderAPI
+	CopilotAPI           *CopilotAPI
+	WebRTCAPI            *WebRTCAPI
+	TranslationAPI       *TranslationAPI
+	ClickToCallAPI       *ClickToCallAPI
+	TimeGroupAPI         *TimeGroupAPI
+	UserGroupAPI         *UserGroupAPI
+	WordFilterAgentAPI   *WordFilterAgentAPI
+	WordFilterContactAPI *WordFilterContactAPI
+	MultichannelAPI      *MultichannelAPI
+	BlockedNumberAPI     *BlockedNumberAPI
+	PredefinedMessageAPI *PredefinedMessageAPI
+	GenericChannelAPI    *GenericChannelAPI
+	WhatsAppAPI          *WhatsAppAPI
+	ReportAPI            *ReportAPI
 }
 
 // Option is a function that configures a Client.
@@ -120,15 +141,36 @@ func NewClient(baseURL, email, password string, opts ...Option) (*Client, error)
 
 	c.ContactAPI = &ContactAPI{client: c}
 	c.ContactGroupAPI = &ContactGroupAPI{client: c}
+	c.ContactFieldAPI = &ContactFieldAPI{client: c}
 	c.ChannelAPI = &ChannelAPI{client: c}
 	c.AgentAPI = &AgentAPI{client: c}
 	c.AgentTalkAPI = &AgentTalkAPI{client: c}
+	c.AgentPauseAPI = &AgentPauseAPI{client: c}
 	c.TeamAPI = &TeamAPI{client: c}
 	c.AdminAPI = &AdminAPI{client: c}
 	c.MessageAPI = &MessageAPI{client: c}
 	c.ApplicationAPI = &ApplicationAPI{client: c}
 	c.TabulationAPI = &TabulationAPI{client: c}
 	c.PauseAPI = &PauseAPI{client: c}
+	c.AttendanceAPI = &AttendanceAPI{client: c}
+	c.TagAPI = &TagAPI{client: c}
+	c.HSMAPI = &HSMAPI{client: c}
+	c.GalleryAPI = &GalleryAPI{client: c}
+	c.PlaceholderAPI = &PlaceholderAPI{client: c}
+	c.CopilotAPI = &CopilotAPI{client: c}
+	c.WebRTCAPI = &WebRTCAPI{client: c}
+	c.TranslationAPI = &TranslationAPI{client: c}
+	c.ClickToCallAPI = &ClickToCallAPI{client: c}
+	c.TimeGroupAPI = &TimeGroupAPI{client: c}
+	c.UserGroupAPI = &UserGroupAPI{client: c}
+	c.WordFilterAgentAPI = &WordFilterAgentAPI{client: c}
+	c.WordFilterContactAPI = &WordFilterContactAPI{client: c}
+	c.MultichannelAPI = &MultichannelAPI{client: c}
+	c.BlockedNumberAPI = &BlockedNumberAPI{client: c}
+	c.PredefinedMessageAPI = &PredefinedMessageAPI{client: c}
+	c.GenericChannelAPI = &GenericChannelAPI{client: c}
+	c.WhatsAppAPI = &WhatsAppAPI{client: c}
+	c.ReportAPI = &ReportAPI{client: c}
 
 	return c, nil
 }

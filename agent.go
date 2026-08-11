@@ -74,18 +74,51 @@ func (f AgentListFilter) values() url.Values {
 // AgentOnline is an agent/admin entry as returned by the online-status
 // endpoints.
 type AgentOnline struct {
-	ID             string   `json:"_id"`
-	Type           string   `json:"type,omitempty"`
-	Email          string   `json:"email,omitempty"`
-	Name           string   `json:"name"`
-	Codename       string   `json:"codename,omitempty"`
-	Status         string   `json:"status,omitempty"`
-	LoggedAt       string   `json:"logged_at,omitempty"`
-	Campaigns      []string `json:"campaigns,omitempty"`
-	Attendances    int      `json:"attendances,omitempty"`
-	Phone          string   `json:"phone,omitempty"`
-	UserSince      string   `json:"user_since,omitempty"`
-	RecentContacts []string `json:"recent_contacts,omitempty"`
+	ID                 string        `json:"_id"`
+	Type               string        `json:"type,omitempty"`
+	Email              string        `json:"email,omitempty"`
+	Name               string        `json:"name"`
+	Codename           string        `json:"codename,omitempty"`
+	Ramal              string        `json:"ramal,omitempty"`
+	Begin              string        `json:"begin,omitempty"`
+	End                string        `json:"end,omitempty"`
+	Status             string        `json:"status,omitempty"`
+	LoggedAt           string        `json:"logged_at,omitempty"`
+	Campaigns          []string      `json:"campaigns,omitempty"`
+	CampaignsOnline    []TeamSummary `json:"campaigns_online,omitempty"`
+	Groups             []string      `json:"groups,omitempty"`
+	Attendances        int           `json:"attendances,omitempty"`
+	Phone              string        `json:"phone,omitempty"`
+	UserSince          string        `json:"user_since,omitempty"`
+	RecentContacts     []string      `json:"recent_contacts,omitempty"`
+	Photo              string        `json:"photo,omitempty"`
+	Language           string        `json:"language,omitempty"`
+	History            string        `json:"history,omitempty"`
+	Pause              any           `json:"pause,omitempty"`
+	MsTeams            any           `json:"msTeams,omitempty"`
+	SessionToken       string        `json:"session_token,omitempty"`
+	UsernameCallcenter string        `json:"username_callcenter,omitempty"`
+	PasswordCallcenter string        `json:"password_callcenter,omitempty"`
+	CreatedAt          string        `json:"created_at,omitempty"`
+	UpdatedAt          string        `json:"updated_at,omitempty"`
+}
+
+// AgentTeam is a team/campaign entry as returned by AgentAPI.MyTeams,
+// richer than TeamSummary since /user/agents/campaigns embeds most of the
+// team's own configuration. Timer is typed any because this endpoint
+// returns its days/hours/minutes as strings, unlike Team.Timer's ints.
+type AgentTeam struct {
+	ID             string `json:"_id"`
+	Name           string `json:"name"`
+	History        string `json:"history,omitempty"`
+	Timer          any    `json:"timer,omitempty"`
+	Transhipment   string `json:"transhipment,omitempty"`
+	MessageEnd     string `json:"messageEnd,omitempty"`
+	MessageAgent   string `json:"messageAgent,omitempty"`
+	RuleAttendance string `json:"ruleAttendance,omitempty"`
+	Tabulations    string `json:"tabulations,omitempty"`
+	CreatedAt      string `json:"created_at,omitempty"`
+	UpdatedAt      string `json:"updated_at,omitempty"`
 }
 
 // AgentTeamsResponse is the payload returned by AgentAPI.MyTeams.
@@ -93,9 +126,18 @@ type AgentTeamsResponse struct {
 	Success bool `json:"success"`
 	Agent   struct {
 		ID        string   `json:"_id"`
+		Type      string   `json:"type,omitempty"`
+		Email     string   `json:"email,omitempty"`
+		Name      string   `json:"name,omitempty"`
+		Codename  string   `json:"codename,omitempty"`
+		Begin     string   `json:"begin,omitempty"`
+		End       string   `json:"end,omitempty"`
 		Campaigns []string `json:"campaigns"`
+		Groups    []string `json:"groups,omitempty"`
+		CreatedAt string   `json:"created_at,omitempty"`
+		UpdatedAt string   `json:"updated_at,omitempty"`
 	} `json:"agent"`
-	Campaigns []TeamSummary `json:"campaigns"`
+	Campaigns []AgentTeam `json:"campaigns"`
 }
 
 // AgentAttendanceContact is a contact currently or awaiting attendance by
@@ -275,4 +317,46 @@ func (a *AgentAPI) ToggleTeam(ctx context.Context, teamID string) (string, error
 // timestamp via POST /user/agents/updateLastInteraction.
 func (a *AgentAPI) UpdateLastInteraction(ctx context.Context) error {
 	return a.client.post(ctx, "/user/agents/updateLastInteraction", nil, nil)
+}
+
+// AgentSessionListFilter holds the query parameters accepted by
+// AgentAPI.SessionAttendances and AgentAPI.SessionWaits.
+type AgentSessionListFilter struct {
+	Name        string
+	Paginate    bool
+	Page        int
+	ContactPlus bool
+}
+
+func (f AgentSessionListFilter) values() url.Values {
+	q := url.Values{}
+	setParam(q, "name", f.Name)
+	if f.Paginate {
+		q.Set("paginate", "true")
+	}
+	setIntParam(q, "page", f.Page)
+	if f.ContactPlus {
+		q.Set("contact_plus", "true")
+	}
+	return q
+}
+
+// SessionAttendances returns a paginated list of the authenticated agent's
+// in-progress attendance sessions via GET /user/agents/sessions/attendances.
+func (a *AgentAPI) SessionAttendances(ctx context.Context, filter AgentSessionListFilter) (*PaginatedResponse[Attendance], error) {
+	var resp PaginatedResponse[Attendance]
+	if err := a.client.get(ctx, "/user/agents/sessions/attendances", filter.values(), &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// SessionWaits returns a paginated list of the authenticated agent's waiting
+// attendance sessions via GET /user/agents/sessions/waits.
+func (a *AgentAPI) SessionWaits(ctx context.Context, filter AgentSessionListFilter) (*PaginatedResponse[Attendance], error) {
+	var resp PaginatedResponse[Attendance]
+	if err := a.client.get(ctx, "/user/agents/sessions/waits", filter.values(), &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
 }

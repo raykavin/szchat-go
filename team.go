@@ -254,8 +254,22 @@ func (a *TeamAPI) Create(ctx context.Context, team Team) (*Team, error) {
 
 // Update updates a team via PUT /campaigns/{id}.
 func (a *TeamAPI) Update(ctx context.Context, id string, team Team) (*TeamUpdateResponse, error) {
+	return a.update(ctx, id, team, false)
+}
+
+// UpdateAndScanFields updates a team via PUT /campaigns/{id}, setting the
+// scanFields option so the API scans and migrates any legacy field layout
+// on the stored team document before applying the update.
+func (a *TeamAPI) UpdateAndScanFields(ctx context.Context, id string, team Team) (*TeamUpdateResponse, error) {
+	return a.update(ctx, id, team, true)
+}
+
+func (a *TeamAPI) update(ctx context.Context, id string, team Team, scanFields bool) (*TeamUpdateResponse, error) {
 	var resp TeamUpdateResponse
 	path := "/campaigns/" + url.PathEscape(id)
+	if scanFields {
+		path += "?scanFields=true"
+	}
 	if err := a.client.put(ctx, path, team, &resp); err != nil {
 		return nil, err
 	}

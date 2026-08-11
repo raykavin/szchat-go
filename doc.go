@@ -1,5 +1,6 @@
 // Package szchat is a Go SDK for the SZChat Chat Center API
-// (https://fibralink.sz.chat/docs/pt-br).
+// (see the official SZChat API documentation, available under the
+// "/docs/pt-br" path of your tenant's SZChat host).
 //
 // A Client authenticates lazily: the first request triggers a login using
 // the credentials passed to NewClient, and the bearer token is refreshed
