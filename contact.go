@@ -263,3 +263,105 @@ func (a *ContactAPI) AttendanceStats(ctx context.Context, contactID, platform st
 	}
 	return &resp, nil
 }
+
+// RecentContact is a single item returned by ContactAPI.Recents.
+type RecentContact struct {
+	ID              string `json:"_id"`
+	Name            string `json:"name,omitempty"`
+	AgentID         string `json:"agent_id,omitempty"`
+	CampaignID      string `json:"campaign_id,omitempty"`
+	ContactID       string `json:"contact_id,omitempty"`
+	ChannelID       string `json:"channel_id,omitempty"`
+	Platform        string `json:"platform,omitempty"`
+	PlatformID      string `json:"platform_id,omitempty"`
+	Status          string `json:"status,omitempty"`
+	IsAttendance    bool   `json:"isAttendance,omitempty"`
+	Photo           string `json:"photo,omitempty"`
+	CreatedAt       string `json:"created_at,omitempty"`
+	ReportAt        string `json:"report_at,omitempty"`
+	LastInteraction string `json:"lastInteraction,omitempty"`
+	LastChannel     string `json:"lastChannel,omitempty"`
+	SessionID       string `json:"session_id,omitempty"`
+}
+
+// Recents returns the authenticated agent's recently contacted contacts via
+// GET /contacts/recents.
+func (a *ContactAPI) Recents(ctx context.Context, search string) ([]RecentContact, error) {
+	q := url.Values{}
+	setParam(q, "search", search)
+	var contacts []RecentContact
+	if err := a.client.get(ctx, "/contacts/recents", q, &contacts); err != nil {
+		return nil, err
+	}
+	return contacts, nil
+}
+
+// ContactMergeCandidateFilter holds the query parameters accepted by
+// ContactAPI.MergeSimilar and ContactAPI.Related.
+type ContactMergeCandidateFilter struct {
+	ContactID string
+	Search    string
+	PerPage   int
+	Page      int
+}
+
+func (f ContactMergeCandidateFilter) values() url.Values {
+	q := url.Values{"contact_id": []string{f.ContactID}}
+	setParam(q, "search", f.Search)
+	setIntParam(q, "per_page", f.PerPage)
+	setIntParam(q, "page", f.Page)
+	return q
+}
+
+// MergeSimilar returns contacts similar to the given contact, candidates
+// for merging, via GET /contacts/merge/similar.
+func (a *ContactAPI) MergeSimilar(ctx context.Context, filter ContactMergeCandidateFilter) (*PaginatedResponse[Contact], error) {
+	var resp PaginatedResponse[Contact]
+	if err := a.client.get(ctx, "/contacts/merge/similar", filter.values(), &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// Related returns contacts already linked to the given contact via
+// GET /contacts/related.
+func (a *ContactAPI) Related(ctx context.Context, contactID string) (*PaginatedResponse[Contact], error) {
+	var resp PaginatedResponse[Contact]
+	q := url.Values{"contact_id": []string{contactID}}
+	if err := a.client.get(ctx, "/contacts/related", q, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// ContactMergeLinkResponse is the payload returned by ContactAPI.MergeLink.
+type ContactMergeLinkResponse struct {
+	MainContact string `json:"main_contact"`
+	MergeWith   string `json:"merge_with"`
+	LinkTo      string `json:"link_to"`
+}
+
+// MergeLink links two contacts as a merge pair via POST /contacts/merge/link.
+func (a *ContactAPI) MergeLink(ctx context.Context, mainContactID, mergeContactID string) (*ContactMergeLinkResponse, error) {
+	var resp ContactMergeLinkResponse
+	req := struct {
+		MainContactID  string `json:"main_contact_id"`
+		MergeContactID string `json:"merge_contact_id"`
+	}{MainContactID: mainContactID, MergeContactID: mergeContactID}
+	if err := a.client.post(ctx, "/contacts/merge/link", req, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
+
+// Unmerge removes a contact's merge links via POST /contacts/unmerge.
+func (a *ContactAPI) Unmerge(ctx context.Context, contactID string) (bool, error) {
+	var ok bool
+	req := struct {
+		ContactID string `json:"contact_id"`
+	}{ContactID: contactID}
+	if err := a.client.post(ctx, "/contacts/unmerge", req, &ok); err != nil {
+		return false, err
+	}
+	return ok, nil
+}
