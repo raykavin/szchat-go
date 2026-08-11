@@ -147,3 +147,11 @@ func (a *MessageAPI) RemoveAnnotation(ctx context.Context, messageID string) err
 	path := "/message/" + url.PathEscape(messageID) + "/annotation"
 	return a.client.delete(ctx, path, nil)
 }
+
+// DownloadMedia downloads a stored media file's raw bytes via
+// GET /config/storage/view/{storage_id}, returning the content and its
+// Content-Type header. This endpoint requires no authentication.
+func (a *MessageAPI) DownloadMedia(ctx context.Context, storageID string) (data []byte, contentType string, err error) {
+	path := "/config/storage/view/" + url.PathEscape(storageID)
+	return a.client.getRaw(ctx, path)
+}

@@ -74,6 +74,8 @@ type Client struct {
 	MultichannelAPI      *MultichannelAPI
 	BlockedNumberAPI     *BlockedNumberAPI
 	PredefinedMessageAPI *PredefinedMessageAPI
+	GenericChannelAPI    *GenericChannelAPI
+	WhatsAppAPI          *WhatsAppAPI
 }
 
 // Option is a function that configures a Client.
@@ -165,6 +167,8 @@ func NewClient(baseURL, email, password string, opts ...Option) (*Client, error)
 	c.MultichannelAPI = &MultichannelAPI{client: c}
 	c.BlockedNumberAPI = &BlockedNumberAPI{client: c}
 	c.PredefinedMessageAPI = &PredefinedMessageAPI{client: c}
+	c.GenericChannelAPI = &GenericChannelAPI{client: c}
+	c.WhatsAppAPI = &WhatsAppAPI{client: c}
 
 	return c, nil
 }
