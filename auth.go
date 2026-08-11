@@ -61,6 +61,26 @@ func (c *Client) Login(ctx context.Context) (*LoginResponse, error) {
 	return &resp, nil
 }
 
+// LoginV2 authenticates against POST /auth/login-v2 using the credentials
+// the Client was created with, and stores the returned bearer token for
+// subsequent requests. login-v2 returns the same payload shape as Login but
+// surfaces more specific 403 failure reasons (expired password, disabled
+// login, simultaneous agent limit reached, agent outside working hours, no
+// active team) instead of a generic error.
+func (c *Client) LoginV2(ctx context.Context) (*LoginResponse, error) {
+	var resp LoginResponse
+	req := loginRequest{
+		Email:       c.email,
+		Password:    c.password,
+		DeviceToken: c.deviceToken,
+	}
+	if err := c.post(withNoAuthRetry(ctx), "/auth/login-v2", req, &resp); err != nil {
+		return nil, err
+	}
+	c.setToken(resp.Token)
+	return &resp, nil
+}
+
 // Me returns the authenticated user's profile via GET /auth/me.
 func (c *Client) Me(ctx context.Context) (*User, error) {
 	var me User
@@ -82,6 +102,19 @@ func (c *Client) Logout(ctx context.Context, scope string) error {
 	}
 	c.setToken("")
 	return nil
+}
+
+// Refresh renews the bearer token via GET /auth/refresh and stores it for
+// subsequent requests. Calling this directly is normally unnecessary since
+// do() already refreshes automatically on a single 401 response; it is
+// exposed for callers that want to proactively renew the token.
+func (c *Client) Refresh(ctx context.Context) (*RefreshResponse, error) {
+	var resp RefreshResponse
+	if err := c.get(ctx, "/auth/refresh", nil, &resp); err != nil {
+		return nil, err
+	}
+	c.setToken(resp.Token)
+	return &resp, nil
 }
 
 // refreshToken renews the bearer token, called automatically by do() on a
