@@ -6,9 +6,15 @@
 
 Uma biblioteca cliente em Go para a **API do SZChat Chat Center**.
 
-Cobre os módulos principais: Contatos, Grupos de Contatos, Canais, Agentes, Mensagens
-entre Agentes, Equipes, Administradores, Mensagens, Configuração da Aplicação,
-Tabulações e Pausas.
+Cobre a API pública documentada em `/docs/pt-br` do seu tenant SZChat, em sua
+totalidade: Contatos (+ campos customizados, filtro de palavras, mesclagem),
+Grupos de Contatos, Canais, Agentes (perfil, pausas, tags, HSM, galeria,
+copilot, WebRTC, tradução simultânea, click-to-call, placeholders), Mensagens
+entre Agentes, Atendimentos (ciclo completo: iniciar, aceitar, transferir,
+finalizar, conferência, histórico, busca), Equipes, Administradores, Grupos
+de Horário, Grupos de Usuário, Mensagens (+ canal genérico + API WhatsApp),
+Configuração da Aplicação, Tabulações, Pausas, Números Bloqueados,
+Multicanal, Mensagens Predefinidas e Relatórios.
 
 
 > **Aviso:** este é um projeto de código aberto independente e não possui
@@ -493,6 +499,16 @@ ambiente é necessário.
 
 ## Cobertura de Endpoints
 
+Auditoria completa contra a documentação oficial do SZChat (`/docs/pt-br`), última verificação: 2026-08-11.
+
+### Autenticação
+- [x] `GET /api/version` — Obter versão da API (sem autenticação)
+- [x] `POST /auth/login` — Login
+- [x] `POST /auth/login-v2` — Login (variante com motivos de falha 403 detalhados)
+- [x] `GET /auth/me` — Obter perfil do usuário autenticado
+- [x] `GET /auth/logout` — Logout
+- [x] `GET /auth/refresh` — Renovar token
+
 ### Contatos
 - [x] `GET /contacts` — Listar contatos (paginado, com filtros)
 - [x] `GET /contacts/search` — Buscar contatos
@@ -503,6 +519,17 @@ ambiente é necessário.
 - [x] `DELETE /contacts/{id}` — Excluir um contato
 - [x] `POST /contacts/annotation` — Salvar anotação de contato
 - [x] `GET /contacts/{id}/attendances` — Obter estatísticas de atendimento do contato
+- [x] `GET /contacts/recents` — Contatos recentes do agente autenticado
+- [x] `GET /contacts/merge/similar` — Candidatos a mesclagem de um contato
+- [x] `GET /contacts/related` — Contatos já vinculados a um contato
+- [x] `POST /contacts/merge/link` — Vincular dois contatos
+- [x] `POST /contacts/unmerge` — Desvincular um contato
+
+### Campos de Contatos
+- [x] `GET /contacts/fields` — Listar campos customizados
+- [x] `POST /contacts/fields` — Criar campo customizado
+- [x] `PUT /contacts/fields/{id}` — Atualizar campo customizado
+- [x] `DELETE /contacts/fields/{id}` — Excluir campo customizado
 
 ### Grupos de Contatos
 - [x] `GET /contacts/groups` — Listar grupos de contatos
@@ -510,6 +537,47 @@ ambiente é necessário.
 - [x] `PUT /contacts/groups/{id}` — Atualizar grupo de contatos
 - [x] `DELETE /contacts/groups/{id}` — Excluir grupo de contatos
 - [x] `GET /contacts/groups/contact/{contact_id}` — Listar grupos por contato
+
+### Filtro de Palavras
+- [x] `GET /wordFilter/agents` — Listar palavras filtradas para agentes
+- [x] `POST /wordFilter/agents` — Adicionar palavra filtrada (agente)
+- [x] `PUT /wordFilter/agents/{id}` — Atualizar palavra filtrada (agente)
+- [x] `DELETE /wordFilter/agents/{id}` — Excluir palavra filtrada (agente)
+- [x] `GET /wordFilter/contacts` — Listar palavras filtradas para contatos
+- [x] `POST /wordFilter/contacts` — Adicionar palavra filtrada (contato)
+- [x] `PUT /wordFilter/contacts/{id}` — Atualizar palavra filtrada (contato)
+- [x] `DELETE /wordFilter/contacts/{id}` — Excluir palavra filtrada (contato)
+
+### Grupo de Horários
+- [x] `GET /timeGroup` — Listar grupos de horário
+- [x] `POST /timeGroup` — Criar grupo de horário
+- [x] `PUT /timeGroup/{id}` — Atualizar grupo de horário
+- [x] `DELETE /timeGroup/{id}` — Excluir grupo de horário
+
+### Grupo de Usuários
+- [x] `GET /userGroup` — Listar grupos de usuário
+- [x] `POST /userGroup` — Criar grupo de usuário
+- [x] `PUT /userGroup/{id}` — Atualizar grupo de usuário
+- [x] `DELETE /userGroup/{id}` — Excluir grupo de usuário
+
+### Mensagens Predefinidas
+- [x] `GET /predefined_messages` — Listar mensagens predefinidas
+- [x] `GET /predefined_messages/{id}` — Obter uma mensagem predefinida
+- [x] `POST /predefined_messages` — Criar mensagem predefinida
+- [x] `PUT /predefined_messages/{id}` — Atualizar mensagem predefinida
+- [x] `DELETE /predefined_messages/{id}` — Excluir mensagem predefinida
+
+### Multicanal
+- [x] `GET /multichannel` — Listar links multicanal
+- [x] `POST /multichannel` — Criar link multicanal
+- [x] `PUT /multichannel/{id}` — Atualizar link multicanal
+- [x] `DELETE /multichannel/{id}` — Excluir link multicanal
+
+### Números Bloqueados
+- [x] `GET /blockedNumbers` — Listar números bloqueados
+- [x] `POST /blockedNumbers` — Bloquear um número
+- [x] `PUT /blockedNumbers/{id}` — Atualizar um número bloqueado
+- [x] `DELETE /blockedNumbers/{id}` — Desbloquear um número
 
 ### Canais
 - [x] `GET /channels` — Listar canais
@@ -528,14 +596,72 @@ ambiente é necessário.
 - [x] `GET /user/agents/campaigns` — Obter minhas equipes
 - [x] `GET /user/agents/attendances` — Obter meus atendimentos
 - [x] `GET /user/agents/attendances_plus` — Obter meus atendimentos (detalhado)
+- [x] `GET /user/agents/sessions/attendances` — Meus atendimentos em andamento (paginado)
+- [x] `GET /user/agents/sessions/waits` — Meus atendimentos em espera (paginado)
 - [x] `GET /user/agents/grades` — Obter minhas notas
 - [x] `POST /user/agents/toggle/campaign` — Alternar minha equipe ativa
 - [x] `POST /user/agents/updateLastInteraction` — Atualizar meu timestamp de última interação
+- [x] `POST /agents/photo` — Enviar foto de perfil do agente
+- [x] `PUT /user/agents/update` — Editar meu perfil (nome, ramal, senha, idioma)
+
+### Pausas do Agente
+- [x] `GET /user/agents/pauses` — Listar motivos de pausa disponíveis
+- [x] `POST /user/agents/pauses/start` — Iniciar uma pausa
+- [x] `POST /user/agents/pauses/stop` — Encerrar a pausa atual
+- [x] `GET /user/agents/pauses/progress` — Progresso da pausa atual
 
 ### Mensagens entre Agentes
 - [x] `POST /user/agents/messages/send` — Enviar mensagem interna
 - [x] `GET /user/agents/messages` — Listar minhas conversas
 - [x] `GET /user/agents/messages/read/{agent_id}` — Obter histórico de conversa com um par
+
+### Tags
+- [x] `GET /user/agents/list/tagsCategory` — Listar categorias de tag
+- [x] `POST /user/agents/session/setTagCategory` — Atribuir tag a uma sessão
+- [x] `POST /user/agents/session/deleteTagCategory` — Remover tag de uma sessão
+
+### Modelos de Mensagem (HSM)
+- [x] `POST /hsm/listAll` — Listar modelos HSM disponíveis
+
+### Galeria
+- [x] `GET /agent/historic/medias` — Listar mídias trocadas com um contato
+
+### Placeholders
+- [x] `POST /user/agent/placeholders` — Resolver placeholders para um contato/agente/sessão
+
+### Copilot
+- [x] `GET /user/agent/copilot/list` — Listar assistentes de copilot
+- [x] `POST /user/agent/copilot/execute` — Executar um assistente de copilot
+
+### WebRTC
+- [x] `GET /user/agent/webrtc/{agent_id}` — Obter configuração de WebRTC de um agente
+
+### Tradução Simultânea
+- [x] `POST /user/agent/stt/translate` — Traduzir uma mensagem
+- [x] `POST /user/agent/stt/translate/detect` — Detectar idioma de uma mensagem
+- [x] `POST /user/agent/stt/translate/activeAutoTranslate` — Alternar tradução automática de uma sessão
+
+### Click to Call
+- [x] `POST /user/agent/call` — Ligar para um contato pelo ramal do agente
+
+### Atendimentos (ciclo de vida)
+- [x] `POST /session/init` — Iniciar um atendimento
+- [x] `POST /attendances/accept` — Aceitar um atendimento em espera
+- [x] `POST /attendances/finish` — Finalizar um atendimento
+- [x] `POST /attendances/transfer` — Transferir um atendimento (equipe ou agente)
+- [x] `GET /attendances` — Pesquisar atendimentos
+- [x] `GET /attendances/phase/{phase}` — Listar atendimentos por fase
+- [x] `POST /attendances/show` — Exibir uma sessão
+- [x] `POST /attendances/historic` — Histórico recente de um contato
+- [x] `POST /attendances/historic/period` — Histórico por período
+- [x] `GET /attendances/historic/interval` — Histórico por intervalo de datas (paginado)
+- [x] `POST /attendances/historic/messages` — Mensagens de uma sessão finalizada
+- [x] `POST /attendances/historic/protocol` — Sessão completa por protocolo
+
+### Conferência entre Agentes
+- [x] `POST /attendances/conference/invite` — Convidar agente para conferência
+- [x] `POST /attendances/conference/accept` — Aceitar/recusar convite de conferência
+- [x] `POST /attendances/conference/finish` — Finalizar participação em conferência
 
 ### Equipes
 - [x] `GET /campaigns` — Listar equipes (paginado)
@@ -543,6 +669,7 @@ ambiente é necessário.
 - [x] `POST /campaigns/filterByIds` — Filtrar equipes por ids
 - [x] `POST /campaigns` — Criar uma equipe
 - [x] `PUT /campaigns/{id}` — Atualizar uma equipe
+- [x] `PUT /campaigns/{id}?scanFields=true` — Atualizar uma equipe migrando campos legados
 - [x] `DELETE /campaigns/{id}` — Excluir uma equipe
 
 ### Administradores
@@ -558,9 +685,17 @@ ambiente é necessário.
 - [x] `POST /message/send_plus` — Enviar mensagem e criar/atualizar contato
 - [x] `POST /message/read` — Ler mensagens de uma sessão
 - [x] `POST /message/pending` — Obter contagem de mensagens pendentes
+- [x] `GET /config/storage/view/{storage_id}` — Baixar uma mídia armazenada
 - [x] `POST /message/replace_vars` — Substituir variáveis de template
 - [x] `POST /message/{id}/annotation` — Adicionar anotação a uma mensagem
 - [x] `DELETE /message/{id}/annotation` — Remover anotação de uma mensagem
+
+### Canal Genérico
+- [x] `POST /generic/messages/send` — Encaminhar mensagem entrante (texto/mídia/localização/contato)
+- [x] `POST /generic/messages/send` — Encaminhar notificação de status do dispositivo
+
+### API WhatsApp
+- [x] `POST /whatsapp/attendances` — Encaminhar conversa/transferir para atendimento humano
 
 ### Configuração da Aplicação
 - [x] `GET /application` — Obter configuração do tenant
@@ -576,19 +711,37 @@ ambiente é necessário.
 - [x] `PUT /tabulations/{id}` — Atualizar uma tabulação
 - [x] `DELETE /tabulations/{id}` — Excluir uma tabulação
 
-### Pausas
+### Pausas (catálogo do tenant)
 - [x] `GET /pauses` — Listar pausas (paginado)
 - [x] `POST /pauses` — Criar uma pausa
 - [x] `PUT /pauses/{id}` — Atualizar uma pausa
 - [x] `DELETE /pauses/{id}` — Excluir uma pausa
 
-### Autenticação
-- [x] `POST /auth/login` — Login
-- [x] `GET /auth/me` — Obter perfil do usuário autenticado
-- [x] `GET /auth/logout` — Logout
-- [x] `GET /auth/refresh` — Renovar token
+### Relatórios
+- [x] `GET /reports/attendances` — Relatório de atendimentos (analítico/sintético)
 
-**Total: 58 endpoints cobertos**
+**Total: 153 endpoints cobertos**
+
+### Fora do escopo do SDK
+
+Os itens abaixo aparecem na documentação mas não são endpoints que este
+cliente deveria chamar, e por isso não têm um método correspondente:
+
+- **Integrações de terceiros** (Altarede, Desk Manager, Duobox, IXC, TOTVS,
+  etc.) e os módulos NLP, REST, OCR, Data Driven, Gupshup, Modelos de
+  Mensagem — são guias de configuração dentro do painel administrativo do
+  Chat Center, sem nenhum endpoint HTTP com método/path documentado.
+- **RD Station** (`GET /rdstation/send`) — URL gerada por tenant para ser
+  chamada *pelo próprio RD Station* dentro do fluxo de automação dele, não
+  pelo cliente da API.
+- **API Receptiva** e os **webhooks de saída do Canal Genérico** — Chat
+  Center realiza o POST para um host configurado pelo tenant; não há
+  endpoint para o cliente chamar. Os tipos `Webhook*` e
+  `GenericChannelOutboundMessage` em [webhook.go](webhook.go) documentam o
+  formato desses payloads para quem precisa decodificá-los no próprio
+  servidor HTTP.
+- **Hooks de entrada/saída do Canal Genérico** (scripts ECMAScript
+  executados pelo Chat Center) — não são chamadas HTTP.
 
 ---
 
